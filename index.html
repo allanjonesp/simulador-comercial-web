@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador Comercial</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo-badge">📊 Gestão & Metas</div>
+      <h1>Simulador Comercial</h1>
+      <p class="subtitle">Acompanhe suas metas de vendas, lucros e a composição dos seus custos de forma clara e visual.</p>
+    </header>
+
+    <main class="card-grid">
+      <!-- Formulário de Entrada -->
+      <section class="card form-card">
+        <h2>Entradas Financeiras</h2>
+        <p class="section-desc">Insira os valores do período analisado.</p>
+
+        <form id="simulador-form" novalidate>
+          <div class="input-group">
+            <label for="faturamento">Faturamento Bruto (Receita Realizada)</label>
+            <div class="input-wrapper">
+              <span class="currency-prefix">R$</span>
+              <input 
+                type="number" 
+                id="faturamento" 
+                name="faturamento" 
+                step="0.01" 
+                min="0" 
+                placeholder="0,00" 
+              />
+            </div>
+            <small class="help-text">Total de vendas e serviços prestados.</small>
+          </div>
+
+          <div class="input-group">
+            <label for="meta">Meta Mensal de Faturamento (Opcional)</label>
+            <div class="input-wrapper">
+              <span class="currency-prefix">R$</span>
+              <input 
+                type="number" 
+                id="meta" 
+                name="meta" 
+                step="0.01" 
+                min="0" 
+                placeholder="0,00" 
+              />
+            </div>
+            <small class="help-text">Seu objetivo de faturamento para o mês.</small>
+          </div>
+
+          <div class="input-group">
+            <label for="custos">Custo das Mercadorias (CMV / CPV)</label>
+            <div class="input-wrapper">
+              <span class="currency-prefix">R$</span>
+              <input 
+                type="number" 
+                id="custos" 
+                name="custos" 
+                step="0.01" 
+                min="0" 
+                placeholder="0,00" 
+              />
+            </div>
+            <small class="help-text">Custos diretos na compra ou produção (opcional para serviços).</small>
+          </div>
+
+          <div class="input-group">
+            <label for="despesas">Despesas Operacionais</label>
+            <div class="input-wrapper">
+              <span class="currency-prefix">R$</span>
+              <input 
+                type="number" 
+                id="despesas" 
+                name="despesas" 
+                step="0.01" 
+                min="0" 
+                placeholder="0,00" 
+              />
+            </div>
+            <small class="help-text">Aluguel, salários, energia, marketing, etc.</small>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="btn btn-primary">Calcular Resultados</button>
+            <button type="button" id="btn-limpar" class="btn btn-secondary">Limpar</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Painel de Resultados e Dashboard -->
+      <section class="card results-card" aria-live="polite">
+        <h2>Painel de Desempenho</h2>
+        <p class="section-desc">Indicadores calculados com base nos dados informados.</p>
+
+        <!-- Bloco de Progresso da Meta com Acessibilidade -->
+        <div class="meta-progress-card" id="card-progresso-meta">
+          <div class="meta-header">
+            <span class="meta-title">🎯 Atingimento da Meta</span>
+            <span class="meta-percent" id="valor-percentual-meta">0,00%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div 
+              class="progress-bar-fill" 
+              id="barra-progresso" 
+              role="progressbar" 
+              aria-valuenow="0" 
+              aria-valuemin="0" 
+              aria-valuemax="100" 
+              aria-label="Progresso da meta de faturamento" 
+              style="width: 0%;"
+            ></div>
+          </div>
+          <div class="meta-footer">
+            <span id="texto-progresso-meta">Meta não informada</span>
+          </div>
+        </div>
+
+        <!-- Indicadores Principais de Lucro -->
+        <div class="results-list">
+          <div class="result-item" id="card-lucro-bruto">
+            <div class="result-info">
+              <span class="result-label">Lucro Bruto</span>
+              <span class="result-formula">Faturamento − Custos</span>
+            </div>
+            <div class="result-value" id="valor-lucro-bruto">R$ 0,00</div>
+          </div>
+
+          <div class="result-item" id="card-lucro-liquido">
+            <div class="result-info">
+              <span class="result-label">Lucro Líquido</span>
+              <span class="result-formula">Lucro Bruto − Despesas</span>
+            </div>
+            <div class="result-value" id="valor-lucro-liquido">R$ 0,00</div>
+          </div>
+
+          <div class="result-item" id="card-margem-liquida">
+            <div class="result-info">
+              <span class="result-label">Margem Líquida</span>
+              <span class="result-formula">(Lucro Líquido ÷ Faturamento) × 100</span>
+            </div>
+            <div class="result-value" id="valor-margem-liquida">0,00%</div>
+          </div>
+        </div>
+
+        <!-- Gráfico de Composição Financeira -->
+        <div class="chart-section" id="secao-grafico">
+          <div class="chart-header">
+            <span class="chart-title">📈 Composição da Receita</span>
+            <span class="chart-subtitle" id="grafico-legenda-tipo">Distribuição proporcional</span>
+          </div>
+          
+          <!-- Barra Gráfica de Distribuição -->
+          <div class="stacked-bar-container" id="stacked-bar">
+            <div class="bar-slice slice-custos" id="slice-custos" style="width: 0%;" title="Custos"></div>
+            <div class="bar-slice slice-despesas" id="slice-despesas" style="width: 0%;" title="Despesas"></div>
+            <div class="bar-slice slice-lucro" id="slice-lucro" style="width: 0%;" title="Lucro Líquido"></div>
+          </div>
+
+          <!-- Legenda do Gráfico -->
+          <div class="chart-legend">
+            <div class="legend-item">
+              <span class="legend-color color-custos"></span>
+              <span class="legend-text">Custos: <strong id="legenda-valor-custos">R$ 0,00</strong></span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color color-despesas"></span>
+              <span class="legend-text">Despesas: <strong id="legenda-valor-despesas">R$ 0,00</strong></span>
+            </div>
+            <div class="legend-item" id="legenda-item-lucro">
+              <span class="legend-color color-lucro"></span>
+              <span class="legend-text">Lucro: <strong id="legenda-valor-lucro">R$ 0,00</strong></span>
+            </div>
+          </div>
+
+          <!-- Destaque Separado para Prejuízo -->
+          <div class="prejuizo-card hidden" id="card-prejuizo-separado">
+            <div class="prejuizo-header">
+              <span class="prejuizo-badge">⚠️ Prejuízo Operacional</span>
+              <span class="prejuizo-valor" id="valor-prejuizo-destaque">R$ 0,00</span>
+            </div>
+            <p class="prejuizo-desc">Os custos e despesas somados superaram a receita realizada. O prejuízo é exibido aqui separadamente para manter a clareza do gráfico.</p>
+          </div>
+        </div>
+
+        <!-- Indicador de Status / Saúde do Negócio -->
+        <div id="status-box" class="status-box neutral">
+          <span class="status-icon">💡</span>
+          <p id="status-texto">Preencha os valores ao lado e clique em <strong>Calcular</strong> para visualizar a saúde financeira.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Simulador Comercial • Criado para tomada de decisões ágil e descomplicada</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
